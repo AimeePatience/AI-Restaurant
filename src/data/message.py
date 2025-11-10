@@ -1,0 +1,24 @@
+
+
+
+from django.db.models import *
+from .users import Employee, User
+
+class Thread(Model):
+    title         = CharField(max_length=100)
+    creation_date = DateTimeField()
+
+class Message(Model):
+    thread  = ForeignKey(Thread, CASCADE) # can be null if not in a thread
+    message = CharField(max_length=256, null=False)
+    who     = ForeignKey(User, CASCADE, null=False)
+    when    = DateTimeField(null=False)
+
+class Compliment(Model):
+    to      = ForeignKey(User, CASCADE)
+    message = ForeignKey(Message, CASCADE)
+
+class Complaint(Model):
+    to      = ForeignKey(User, CASCADE)
+    message = ForeignKey(Message, CASCADE)
+    status  = Choices([(a,a) for a in ['valid', 'invalid', 'pending']])
