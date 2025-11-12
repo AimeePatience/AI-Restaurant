@@ -26,4 +26,4 @@ class Complaint(Model):
     ]
     to      = ForeignKey(User, CASCADE)
     message = ForeignKey(Message, CASCADE)
-    status  = CharField(max_length=1, choices=STATUS)
+    status  = CharField(max_length=1, choices=STATUS, default='pending')
