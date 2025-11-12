@@ -2,7 +2,7 @@
 
 
 from django.db.models import *
-from .users import Employee, User
+from .users import User
 
 class Thread(Model):
     title         = CharField(max_length=100)

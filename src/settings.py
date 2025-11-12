@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['SapphireBrick613.pythonanywhere.com']
 # Application definition
 
 INSTALLED_APPS = [
+    "apps.AIRestaurantConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
