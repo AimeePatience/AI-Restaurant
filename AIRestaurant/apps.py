@@ -4,7 +4,7 @@ from django.apps import AppConfig
 
 class AIRestaurantConfig(AppConfig):
     name = 'AIRestaurant'
-    label = 'ai-r'
+    label = 'air'
 
     def ready(self):
         pass
