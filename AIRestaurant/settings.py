@@ -50,7 +50,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "src.urls"
+ROOT_URLCONF = "AIRestaurant.urls"
 
 TEMPLATES = [
     {
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "src.wsgi.application"
+WSGI_APPLICATION = "AIRestaurant.wsgi.application"
 
 
 # Database
@@ -125,7 +125,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_ROOT = '/home/SapphireBrick613/AIRestaurant/src/media'
+MEDIA_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/media'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/home/SapphireBrick613/AIRestaurant/src/static'
+STATIC_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/static'
 STATIC_URL = '/static/'
