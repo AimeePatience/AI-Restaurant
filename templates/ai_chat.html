@@ -95,7 +95,7 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
         addMessage(data.answer, 'bot', data.rating_id, data.source);
     })
     .catch(error => {
-        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        addMessage('Sorry, I encountered an error.' + error.message, 'bot');
     });
 });
 
