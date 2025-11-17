@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render
 from . import views
-template = lambda name: path(name, lambda request: render(request, name), name=name)
+template = lambda name: path(name, lambda request: render(request, name + ".html"), name=name)
 
 urlpatterns = [
     path('', views.home, name='home'),
