@@ -1,0 +1,56 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}My Complaints - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>My Complaints</h2>
+
+{% if complaints %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Against</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Decision</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td>#{{ complaint.id }}</td>
+                <td>{{ complaint.filed_against.username }}</td>
+                <td>{{ complaint.get_type_display|default:complaint.type }}</td>
+                <td>{{ complaint.description|truncatewords:10 }}</td>
+                <td>
+                    <span class="badge bg-{% if complaint.status == 'Approved' %}success{% elif complaint.status == 'Rejected' %}danger{% else %}warning{% endif %}">
+                        {{ complaint.status }}
+                    </span>
+                </td>
+                <td>{{ complaint.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    {% if complaint.manager_decision %}
+                        {{ complaint.manager_decision }}
+                        {% if complaint.manager_notes %}
+                        <br><small class="text-muted">{{ complaint.manager_notes|truncatewords:5 }}</small>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Pending Review</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    You haven't filed any complaints. <a href="{% url 'file_complaint' %}">File a complaint</a> if needed.
+</div>
+{% endif %}
+{% endblock %}
+

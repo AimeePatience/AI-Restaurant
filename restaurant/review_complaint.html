@@ -1,0 +1,50 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}Review Complaint - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Review Complaint #{{ complaint.id }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>Filed by:</strong> {{ complaint.filed_by.username }}</p>
+                    <p><strong>Against:</strong> {{ complaint.filed_against.username }}</p>
+                    <p><strong>Type:</strong> {{ complaint.get_type_display|default:complaint.type }}</p>
+                    <p><strong>Description:</strong></p>
+                    <div class="p-3 bg-light rounded">
+                        {{ complaint.description }}
+                    </div>
+                    {% if complaint.order %}
+                    <p class="mt-2"><strong>Related Order:</strong> #{{ complaint.order.id }}</p>
+                    {% endif %}
+                    <p class="mt-2"><strong>Date Filed:</strong> {{ complaint.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                
+                <form method="POST" action="{% url 'review_complaint' complaint.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Manager Notes (Optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Add any notes about your decision..."></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        If you reject this complaint, the person who filed it will receive a warning. 
+                        After 3 warnings, their account may be blacklisted.
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" name="decision" value="Rejected" class="btn btn-danger">Reject Complaint</button>
+                        <button type="submit" name="decision" value="Approved" class="btn btn-success">Approve Complaint</button>
+                        <a href="{% url 'manager_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

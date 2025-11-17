@@ -1,0 +1,44 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}Place Delivery Bid - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Place Bid for Order #{{ order.id }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>Customer:</strong> {{ order.customer.username }}</p>
+                    <p><strong>Total:</strong> ${{ order.total_amount|floatformat:2 }}</p>
+                    <p><strong>Address:</strong> {{ order.delivery_address|default:"N/A" }}</p>
+                    <p><strong>Items:</strong></p>
+                    <ul>
+                        {% for item in order.items.all %}
+                        <li>{{ item.menu_item.name }} (x{{ item.quantity }})</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <form method="POST" action="{% url 'delivery_bid' order.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_bid_amount" class="form-label">Bid Amount (Optional)</label>
+                        {{ form.bid_amount }}
+                        <small class="text-muted">Leave empty if no specific bid amount</small>
+                        {% if form.bid_amount.errors %}
+                        <div class="text-danger">{{ form.bid_amount.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Place Bid</button>
+                        <a href="{% url 'available_orders' %}" class="btn btn-secondary mt-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

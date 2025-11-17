@@ -1,0 +1,78 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}Assign Order - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Assign Order #{{ order.id }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>Customer:</strong> {{ order.customer.username }}</p>
+                    <p><strong>Total:</strong> ${{ order.total_amount|floatformat:2 }}</p>
+                    <p><strong>Items:</strong></p>
+                    <ul>
+                        {% for item in order.items.all %}
+                        <li>{{ item.menu_item.name }} (x{{ item.quantity }})</li>
+                        {% endfor %}
+                    </ul>
+                    <p><strong>Delivery Address:</strong> {{ order.delivery_address|default:"N/A" }}</p>
+                </div>
+                
+                {% if bids %}
+                <div class="mb-3">
+                    <h5>Bids Received:</h5>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Delivery Person</th>
+                                <th>Bid Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bid in bids %}
+                            <tr>
+                                <td>{{ bid.delivery_person.username }}</td>
+                                <td>{% if bid.bid_amount %}${{ bid.bid_amount|floatformat:2 }}{% else %}No bid{% endif %}</td>
+                                <td>{{ bid.created_at|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <form method="POST" action="{% url 'assign_order' order.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="delivery_person_id" class="form-label">Assign to Delivery Person</label>
+                        <select class="form-select" id="delivery_person_id" name="delivery_person_id" required>
+                            <option value="">Select delivery person...</option>
+                            {% for bid in bids %}
+                            <option value="{{ bid.delivery_person.id }}">
+                                {{ bid.delivery_person.username }} 
+                                {% if bid.bid_amount %}(Bid: ${{ bid.bid_amount|floatformat:2 }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Assign Order</button>
+                        <a href="{% url 'manager_dashboard' %}" class="btn btn-secondary mt-2">Cancel</a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    No bids have been placed for this order yet.
+                </div>
+                <a href="{% url 'manager_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

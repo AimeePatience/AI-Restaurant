@@ -1,0 +1,53 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}Available Orders - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>Available Orders for Delivery</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customer.username }}</td>
+                <td>
+                    {% for item in order.items.all %}
+                    {{ item.menu_item.name }} (x{{ item.quantity }})<br>
+                    {% endfor %}
+                </td>
+                <td>${{ order.total_amount|floatformat:2 }}</td>
+                <td>{{ order.delivery_address|default:"N/A" }}</td>
+                <td>
+                    <span class="badge bg-{% if order.status == 'Ready' %}success{% else %}warning{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'delivery_bid' order.id %}" class="btn btn-sm btn-primary">Place Bid</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No orders available for delivery at the moment.
+</div>
+{% endif %}
+{% endblock %}
+
