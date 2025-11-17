@@ -1,9 +1,79 @@
+{% extends "restaurant/base.html" %}
 
-<html>
-    <head></head>
-    <body>
-        Testing:
-        <br><br>
-        Hello world!
-    </body>
-</html>
+{% block title %}Menu - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Our Menu</h1>
+    </div>
+    <div class="col-md-4">
+        <form method="GET" action="{% url 'index' %}" class="d-flex">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search menu..." value="{{ search }}">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="mb-3">
+    {% if categories %}
+    <div class="btn-group" role="group">
+        <a href="{% url 'index' %}" class="btn btn-outline-secondary">All</a>
+        {% for cat in categories %}
+        <a href="{% url 'index' %}?category={{ cat }}" 
+           class="btn btn-outline-secondary {% if category == cat %}active{% endif %}">{{ cat }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    {% for item in menu_items %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" 
+                 class="card-img-top" alt="{{ item.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                <div class="text-center">
+                    <i class="bi bi-image fs-1 text-muted"></i>
+                    <p class="text-muted small mb-0">No image</p>
+                </div>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text">{{ item.description|default:"Delicious item from our kitchen" }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="text-primary">${{ item.price|floatformat:2 }}</strong>
+                        {% if item.chef %}
+                        <br><small class="text-muted">Chef: {{ item.chef.username }}</small>
+                        {% endif %}
+                    </div>
+                    {% if user.is_authenticated and user.is_customer %}
+                    <form method="POST" action="{% url 'add_to_cart' item.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <div class="input-group" style="width: 120px;">
+                            <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="width: 60px;">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </form>
+                    {% elif not user.is_authenticated %}
+                    <small class="text-muted">Login to order</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-center text-muted">No menu items found.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
