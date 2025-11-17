@@ -17,11 +17,27 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.shortcuts import render
 from . import views
+template = lambda name: path(name, lambda request: render(request, name), name=name)
 
 urlpatterns = [
     path('', views.home, name='home'),
     path("admin/", admin.site.urls),
     path('index/', views.home, name='index'),
-    path('add_to_cart/', views.add_to_cart, name='add_to_cart')
+    path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
+    template('ai_chat'),
+    template('cart'),
+    template('order_history'),
+    template('deposit'),
+    template('file_complaint'),
+    template('file_compliment'),
+    template('chef_dashboard'),
+    template('available_orders'),
+    template('my_deliveries'),
+    template('manager_dashboard'),
+    template('manage_menu'),
+    template('logout'),
+    template('login'),
+    template('register')
 ]
