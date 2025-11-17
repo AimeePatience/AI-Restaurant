@@ -9,7 +9,7 @@ def add_to_cart(request):
     return render(request, 'cart.html')
 
 def ai_chat(request):
-    if request.POST:
+    if request.method == 'POST':
         question = request.POST.get("query")
         AI_PATH = "/home/SapphireBrick613/AI"
         result = shell(
