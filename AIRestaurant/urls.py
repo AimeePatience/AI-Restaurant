@@ -21,7 +21,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path("admin", admin.site.urls),
-    path('index', views.home),
-    path('add_to_cart', views.add_to_cart)
+    path("admin/", admin.site.urls),
+    path('index/', views.home, name='index'),
+    path('add_to_cart/', views.add_to_cart, name='add_to_cart')
 ]
