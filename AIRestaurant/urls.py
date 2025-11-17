@@ -19,7 +19,8 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render
 from . import views
-template = lambda name: path(name, lambda request: render(request, name + ".html"), name=name)
+def template(name):
+    return path(name, lambda request: render(request, name + ".html"), name=name)
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -27,7 +28,8 @@ urlpatterns = [
     path('index/', views.home, name='index'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
 
-    path('ai_chat/', views.ai_chat, name='ai_chat'),
+    path('ai_chat/<question:msg>/', views.ai_chat, name='ai_chat'),
+    template('ai_chat'),
     template('cart'),
     template('order_history'),
     template('deposit'),
