@@ -85,10 +85,10 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
     fetch({% url 'ai_chat_query' %}, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/x-www-form-urlencoded",
             'X-CSRFToken': csrftoken
         },
-        body: 'query=' + encodeURIComponent(query)
+        body: new URLSearchParams({query: encodeURIComponent(query)})   
     })
     .then(response => response.json())
     .then(data => {
