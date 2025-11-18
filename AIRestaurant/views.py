@@ -17,6 +17,7 @@ def ai_chat(request):
         input=question,
         encoding='utf-8')
     response = result.stdout if result.returncode == 0 else "<AI failed>"
+    assert False, response
     return JsonResponse({
         "answer": response,
         "rating_id": 0,
