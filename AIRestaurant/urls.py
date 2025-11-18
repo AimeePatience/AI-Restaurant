@@ -28,7 +28,7 @@ urlpatterns = [
     path('index/', views.home, name='index'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
 
-    path('ai_chat/', lambda request: render(request, 'ai_chat.html')),
+    path('ai_chat/', lambda request: render(request, 'ai_chat.html'), name='ai_chat'),
     path('ai_chat/?query=<str:question>/', views.ai_chat),
     template('cart'),
     template('order_history'),
