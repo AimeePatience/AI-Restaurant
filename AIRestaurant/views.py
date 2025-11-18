@@ -8,8 +8,9 @@ def home(request):
 def add_to_cart(request):
     return render(request, 'cart.html')
 
-def ai_chat(request, question):
+def ai_chat(request):
     AI_PATH = "/home/SapphireBrick613/AI"
+    question = request.POST.get('query')
     result = shell(
         [f'{AI_PATH}/llama-run', f'{AI_PATH}/tinyllama-1.1b-chat-v1.0.Q4_0.gguf'],
         capture_output=True,

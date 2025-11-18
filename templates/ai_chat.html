@@ -82,13 +82,13 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
     // Get CSRF token
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
-    fetch('/ai_chat_query/?query=' + encodeURIComponent(query), {
-        method: 'GET',
+    fetch({% url 'ai_chat_query' %}, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            //'X-CSRFToken': csrftoken
+            'X-CSRFToken': csrftoken
         },
-        //body: '' //'query=' + encodeURIComponent(query)
+        body: 'query=' + encodeURIComponent(query)
     })
     .then(response => response.json())
     .then(data => {
