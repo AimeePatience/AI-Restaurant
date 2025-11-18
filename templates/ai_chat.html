@@ -98,7 +98,7 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         clearInterval(timer);
-        messagesDiv.removeChild();
+        messagesDiv.removeChild(element);
         addMessage(data.answer, 'bot', data.rating_id, data.source);
     })
     .catch(error => {
