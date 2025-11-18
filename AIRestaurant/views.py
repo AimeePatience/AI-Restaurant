@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from subprocess import run as shell
+from urllib.parse import unquote
 
 def home(request):
     return render(request, 'index.html')
@@ -10,7 +11,7 @@ def add_to_cart(request):
 
 def ai_chat(request):
     AI_PATH = "/home/SapphireBrick613/AI"
-    question = request.POST.get('query')
+    question = unquote(request.POST.get('query'))
     result = shell(
         [f'{AI_PATH}/llama-run', f'{AI_PATH}/tinyllama-1.1b-chat-v1.0.Q4_0.gguf'],
         capture_output=True,
@@ -19,7 +20,7 @@ def ai_chat(request):
     response = result.stdout if result.returncode == 0 else "<AI failed>"
 
     return JsonResponse({
-        "answer": f"({question})" + response,
+        "answer": response,
         "rating_id": 0,
         "source": "AI",
     })
