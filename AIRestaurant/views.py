@@ -17,7 +17,7 @@ def ai_chat(request):
         capture_output=True,
         input=question,
         encoding='utf-8')
-    response = result.stdout.replace("\x1b[0m", "0") if result.returncode == 0 else "<AI failed>"
+    response = result.stdout.replace("\x1b[0m", "") if result.returncode == 0 else "<AI failed>"
 
     return JsonResponse({
         "answer": response,
