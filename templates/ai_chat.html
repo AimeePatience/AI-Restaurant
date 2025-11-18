@@ -81,7 +81,12 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
     
     // Get CSRF token
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
+
+    const messagesDiv = document.getElementById('chat-messages');
+    var n = 0, element = document.createElement("p");
+    element.innerHTML = "0s";
+    messagesDiv.appendChild(element);
+    var timer = setInterval(() => element.innerHTML = ++n + "s", 1000);
     fetch({% url 'ai_chat_query' %}, {
         method: 'POST',
         headers: {
@@ -92,6 +97,8 @@ document.getElementById('chat-form').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        clearInterval(timer);
+        messagesDiv.removeChild();
         addMessage(data.answer, 'bot', data.rating_id, data.source);
     })
     .catch(error => {
