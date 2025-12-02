@@ -10,14 +10,10 @@
         <h2>{{ target.name }} {% if target.vip %}<span class="badge bg-warning">VIP</span>{% endif %}</h2>
         <p><strong>User type:</strong> Customer</p>
         {% if private_visible %}
-           {% if private_visible %}
-            <p><strong>Balance:</strong> ${{ profile.balance }}</p>
-           {% endif %}
+          <p><strong>Balance:</strong> ${{ profile.balance }}</p>
         {% endif %}
         {% if relevant_visible %}
-           {% if relevant_visible %}
-            <p><strong>Warnings:</strong> {{ profile.warnings }}</p>
-           {% endif %}
+          <p><strong>Warnings:</strong> {{ profile.warnings }}</p>
         {% endif %}
       </div>
     </div>
@@ -41,20 +37,17 @@
       <div class="card-body">
         {% for cp in complaints %}
           {% if private_visible %}
-              {% if private_visible %}
-                <div class="mb-2">
-                  <strong>{{ cp.sender.name }}</strong>:
-                  {{ cp.message.message }}
-                  <div><small class="text-muted">Status: {{ cp.get_status_display }}</small></div>
-                </div>
-              {% endif %}
+            <div class="mb-2">
+              <strong>{{ cp.sender.name }}</strong>:
+              {{ cp.message.message }}
+              <div><small class="text-muted">Status: {{ cp.get_status_display }}</small></div>
+            </div>
           {% elif cp.status == 'v' and relevant_visible %}
-              {% elif cp.status == 'v' and relevant_visible %}
-                <div class="mb-2">
-                  <strong>{{ cp.sender.name }}</strong>:
-                  {{ cp.message.message }}
-                  <div><small class="text-muted">Status: {{ cp.get_status_display }}</small></div>
-                </div>
+            <div class="mb-2">
+              <strong>{{ cp.sender.name }}</strong>:
+              {{ cp.message.message }}
+              <div><small class="text-muted">Status: {{ cp.get_status_display }}</small></div>
+            </div>
           {% endif %}
         {% empty %}
           <div>No complaints recorded.</div>
