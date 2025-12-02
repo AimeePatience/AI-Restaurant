@@ -129,3 +129,5 @@ MEDIA_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/media'
 MEDIA_URL = '/media/'
 STATIC_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/static'
 STATIC_URL = '/static/'
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
