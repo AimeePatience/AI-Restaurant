@@ -44,3 +44,8 @@ urlpatterns = [
     template('login'),
     template('register')
 ]
+
+# profile pages: view any user's profile (combined dashboard + public profile)
+urlpatterns += [
+    path('user/<int:user_id>/', views.profile_view, name='profile'),
+]
