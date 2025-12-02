@@ -33,6 +33,7 @@ urlpatterns = [
     template('cart'),
     template('order_history'),
     template('deposit'),
+    # keep existing template routes for compatibility, but add POST endpoints below
     template('file_complaint'),
     template('file_compliment'),
     template('chef_dashboard'),
@@ -48,4 +49,11 @@ urlpatterns = [
 # profile pages: view any user's profile (combined dashboard + public profile)
 urlpatterns += [
     path('user/<int:user_id>/', views.profile_view, name='profile'),
+]
+
+# submission endpoints for embedded forms
+from . import views_submit
+urlpatterns += [
+    path('submit_complaint/', views_submit.submit_complaint, name='submit_complaint'),
+    path('submit_compliment/', views_submit.submit_compliment, name='submit_compliment'),
 ]
