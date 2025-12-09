@@ -18,6 +18,13 @@ def menu(request):
 def add_to_cart(request):
     return render(request, 'cart.html')
 
+def rate_dish(request, dish_id):
+    return render(request, 'rate_dish.html', {'dish_id': dish_id})
+
+def update_cart(request):
+    return render(request, 'cart.html')
+def cart(request):
+    return render(request, 'cart.html')
 def __getattr__(name):
     return lambda request: render(request, f'{name}.html')
 

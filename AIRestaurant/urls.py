@@ -40,10 +40,10 @@ urlpatterns = [
     # Order status update
     #path('update_order_status/<int:order_id>/', views.update_order_status, name='update_order_status'),
     
-    # Cart operations
-    #path('update_cart/', views.update_cart, name='update_cart'),
+    path('cart/', views.cart, name='cart'),
+    path('update_cart/', views.update_cart, name='update_cart'),
     
     # Dish rating
-    #path('rate_dish/<int:dish_id>/', views.rate_dish, name='rate_dish'),
+    path('rate_dish/<int:dish_id>/', views.rate_dish, name='rate_dish'),
 ]
 
