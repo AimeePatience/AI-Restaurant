@@ -3,12 +3,7 @@ from django.http import JsonResponse
 from subprocess import run as shell
 from urllib.parse import unquote
 from django.shortcuts import get_object_or_404
-from .data.users import User as DataUser
-from .data.customer import Customer, DishRating
-from .data.chef import Chef
-from .data.deliverer import Deliverer
-from .data.manager import Manager
-from .data.message import Compliment, Complaint, Message
+from .models import User as DataUser, Customer, DishRating, Deliverer, Chef, Manager, Compliment, Complaint, Message
 from django.db.models import Avg
 from django.utils import timezone
 from django.shortcuts import redirect
