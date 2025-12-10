@@ -64,7 +64,7 @@
                         {% endif %}
                         {% if user.type == 'MN' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'manager_dashboard' %}">Manager Dashboard</a>
+                                <a class="nav-link" href="{% url 'manager' %}">Manager Dashboard</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'manage_menu' %}">Manage Menu</a>
@@ -85,6 +85,7 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'profile' user.id %}">My Profile</a></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
                         </li>

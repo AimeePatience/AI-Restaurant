@@ -17,6 +17,7 @@ urlpatterns = [
     path('submit_message/', views_submit.submit_message, name='submit_message'),
     path('submit_complaint/', views_submit.submit_complaint, name='submit_complaint'),
     path('submit_compliment/', views_submit.submit_compliment, name='submit_compliment'),
+
     # Customer pages
     path('cart/', views.cart, name='cart'),
     path('add_to_cart/<int:menu_id>/', views.add_to_cart, name='add_to_cart'),
@@ -37,11 +38,11 @@ urlpatterns = [
     # Chef pages
     
     # Manager pages
-    path('manager_dashboard/', views.manager_dashboard, name='manager_dashboard'),
     path('manage_menu/', views.manage_menu, name='manage_menu'),
     path('review_complaint/<int:complaint_id>/', views.review_complaint, name='review_complaint'),
     path('assign_order/<int:order_id>/', views.assign_order, name='assign_order'),
     path('approve_user/<int:user_id>/', views.approve_user, name='approve_user'),
+    path('reject_user/<int:user_id>/', views.reject_user, name='reject_user'),
     
     # Order status update
     path('update_order_status/<int:order_id>/', views.update_order_status, name='update_order_status'),
@@ -55,6 +56,7 @@ urlpatterns = [
     path('profile/<int:user_id>/', views.profile_view, name='profile'),
     path('cart/', views.cart, name='cart'),
     path('update_cart/', views.update_cart, name='update_cart'),
+    
     
     # Dish rating
     path('rate_dish/<int:dish_id>/', views.rate_dish, name='rate_dish'),

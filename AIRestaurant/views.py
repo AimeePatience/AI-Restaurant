@@ -84,11 +84,6 @@ def delivery_bid(request, order_id):
 
 def my_deliveries(request):
     return render(request, 'my_deliveries.html')
-
-
-def manager_dashboard(request):
-    return render(request, 'manager.html')
-
 def discussions(request):
     return render(request, 'discussions.html')
 
@@ -404,6 +399,7 @@ def register(request):
     
     Manager approval is required to activate the account and create profiles.
     """
+    # Map roles from the registration form to internal codes
     USERTYPE = {'Customer': 'CU', 'Chef': 'CH', 'Deliverer': 'DL', 'Manager': 'MN'}
 
     if request.method == 'POST':
@@ -445,7 +441,6 @@ def register(request):
 
 
 @require_POST
-@require_POST
 def approve_user(request, user_id):
     """Manager approves a pending user registration and creates their profile."""
     # Verify requester is a manager
@@ -483,4 +478,31 @@ def approve_user(request, user_id):
         messages.error(request, f'Error approving user: {str(e)}')
     
     # Redirect back to manager profile
+    return redirect('profile', user_id=viewer.id)
+
+
+@require_POST
+def reject_user(request, user_id):
+    """Manager rejects a pending registration and deletes the user account."""
+    viewer = request.user
+    viewer_type = getattr(viewer, 'type', None)
+    is_manager = getattr(viewer, 'is_staff', False) or getattr(viewer, 'is_superuser', False) or (viewer_type == 'MN')
+
+    if not is_manager:
+        messages.error(request, 'Only managers can reject user registrations.')
+        return redirect('index')
+
+    try:
+        user = DataUser.objects.get(id=user_id, status='PN')
+    except DataUser.DoesNotExist:
+        messages.error(request, 'User not found or already processed.')
+        return redirect('profile', user_id=viewer.id)
+
+    username = user.username
+    try:
+        user.delete()
+        messages.success(request, f'User {username} rejected and removed.')
+    except Exception as e:
+        messages.error(request, f'Error rejecting user: {str(e)}')
+
     return redirect('profile', user_id=viewer.id)

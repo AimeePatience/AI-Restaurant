@@ -61,14 +61,14 @@
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Assign Order</button>
-                        <a href="{% url 'manager_dashboard' %}" class="btn btn-secondary mt-2">Cancel</a>
+                        <a href="{% url 'manager' %}" class="btn btn-secondary mt-2">Cancel</a>
                     </div>
                 </form>
                 {% else %}
                 <div class="alert alert-warning">
                     No bids have been placed for this order yet.
                 </div>
-                <a href="{% url 'manager_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="{% url 'manager' %}" class="btn btn-secondary">Back to Dashboard</a>
                 {% endif %}
             </div>
         </div>

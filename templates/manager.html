@@ -52,6 +52,10 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-success">Approve</button>
                   </form>
+                  <form method="post" action="{% url 'reject_user' pending_user.id %}" style="display:inline;" class="ms-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                  </form>
                 </td>
               </tr>
               {% endfor %}
@@ -71,10 +75,11 @@
   <div class="col-md-4">
     {% if user.is_authenticated and user.id == target.id %}
       <div class="card mb-3">
-        <div class="card-header">Your Dashboard</div>
-        <div class="card-body">
-          <a class="btn btn-primary w-100 mb-2" href="{% url 'manager_dashboard' %}">Manager Dashboard</a>
-          <a class="btn btn-secondary w-100" href="{% url 'manage_menu' %}">Manage Menu</a>
+        <div class="card-header">Your Manager Tools</div>
+        <div class="card-body d-grid gap-2">
+          <a class="btn btn-primary" href="{% url 'manage_menu' %}">Manage Menu</a>
+          <a class="btn btn-outline-primary" href="{% url 'discussions' %}">Team Discussions</a>
+          <a class="btn btn-outline-secondary" href="{% url 'index' %}">Back to Home</a>
         </div>
       </div>
     {% endif %}
