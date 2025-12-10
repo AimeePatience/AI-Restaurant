@@ -85,10 +85,6 @@ def my_deliveries(request):
     return render(request, 'my_deliveries.html')
 
 
-def chef_dashboard(request):
-    return render(request, 'chef.html')
-
-
 def manager_dashboard(request):
     return render(request, 'manager.html')
 

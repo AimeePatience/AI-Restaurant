@@ -16,29 +16,60 @@ class User(AbstractUser):
 
 class Employee(Model):
     login       = OneToOneField(User, CASCADE)
-    balance     = IntegerField()
-    salary      = IntegerField()
-    bonus       = IntegerField() # fixed amount 
-    demotion    = IntegerField() # salary when demoted
+    balance     = IntegerField(default=0)
+    salary      = IntegerField(default=2000) # cents per hour
+    bonus       = IntegerField(default=10000) # fixed amount 
+    demotion    = IntegerField(default=1500) # salary when demoted
 
     def average_rating(self):
+        """Calculate average dish rating for this employee (typically a Chef).
+
+        Returns the average of all ratings on dishes created by this employee,
+        or None if no ratings exist.
         """
-        TODO: should return AVG(SELECT score FROM Rating AS r WHERE r.to == self.login)
-        """
-        raise NotImplementedError()
+        from django.db.models import Avg
+        from .dish import Dish
+        from .dish import DishRating
+
+        # Get all dishes created by this employee and their average rating
+        avg_rating = DishRating.objects.filter(
+            dish__chef__login=self.login
+        ).aggregate(avg=Avg('rating'))['avg']
+
+        return avg_rating
 
 
     def score(self):
+        """Calculate reputation score: (compliments - complaints) with VIP weighting.
+
+        Returns: good + good_vip - bad - bad_vip where:
+          good = count of compliments from any user
+          good_vip = count of compliments from VIP customers
+          bad = count of valid complaints from any user
+          bad_vip = count of valid complaints from VIP customers
         """
-        TODO: should return good + good_vip - bad - bad_vip
-        good = (SELECT COUNT(*) FROM Compliment AS c WHERE c.to == self.login)
-        bad  = (SELECT COUNT(*) FROM Complaint AS c WHERE c.to == self.login AND c.status == 'valid')
-        good_vip = (SELECT COUNT(*) FROM Compliment AS c
-            INNER JOIN Customer
-            ON c.sender == Customer.login AND c.vip AND c.to == self.login)
-        bad_vip = (SELECT COUNT(*) FROM Compliment AS c
-            INNER JOIN Customer
-            ON c.sender == Customer.login AND c.vip AND c.to == self.login AND c.status == 'valid)
-        """
-        raise NotImplementedError()
+        from .complaint import Complaint
+        from .compliment import Compliment
+        from .customer import Customer
+
+        # All compliments (good)
+        good = Compliment.objects.filter(to=self.login).count()
+
+        # Valid complaints (bad)
+        bad = Complaint.objects.filter(to=self.login, status='v').count()
+
+        # Compliments from VIP customers (good_vip)
+        good_vip = Compliment.objects.filter(
+            to=self.login,
+            sender__customer__vip=True
+        ).count()
+
+        # Valid complaints from VIP customers (bad_vip)
+        bad_vip = Complaint.objects.filter(
+            to=self.login,
+            status='v',
+            sender__customer__vip=True
+        ).count()
+
+        return good + good_vip - bad - bad_vip
 
