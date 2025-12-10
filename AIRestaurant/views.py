@@ -372,12 +372,27 @@ def profile_view(request, user_id):
 
 
 def discussions(request):
-    """List recent threads and support searching by title via GET param `q`."""
+    """List recent threads and support searching by title via GET param `q`.
+
+    For improved UX we pass along per-thread metadata so the template can
+    display a message count and a short preview of the latest message.
+    """
     q = request.GET.get('q', '').strip()
     if q:
-        threads = list(Thread.objects.filter(title__icontains=q).order_by('-creation_date')[:50])
+        threads_qs = Thread.objects.filter(title__icontains=q).order_by('-creation_date')[:50]
     else:
-        threads = list(Thread.objects.all().order_by('-creation_date')[:10])
+        threads_qs = Thread.objects.all().order_by('-creation_date')[:10]
+
+    # Build a lightweight list of dicts with thread + activity metadata
+    threads = []
+    for t in threads_qs:
+        last_msg = Message.objects.filter(thread=t).select_related('who').order_by('-when').first()
+        count = Message.objects.filter(thread=t).count()
+        threads.append({
+            'thread': t,
+            'count': count,
+            'last': last_msg,
+        })
 
     return render(request, 'discussions.html', {
         'threads': threads,
@@ -419,7 +434,7 @@ def thread_view(request, thread_id):
         'thread': t,
         'starter': starter,
         'starter_date': starter_date,
-        'messages': messages_qs,
+        'thread_messages': messages_qs,
     })
 
 
