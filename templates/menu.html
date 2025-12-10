@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% load filters %}
 {% block extra_head %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
@@ -69,8 +70,8 @@
         {% for dish in dishes %}
         <div class="col-md-4 col-sm-6 mb-4">
             <div class="card dish-card h-100">
-                {% if dish.image %}
-                <img src="{{ dish.image.url }}" class="card-img-top dish-img" alt="{{ dish.name }}">
+                {% if dish.img %}
+                <img src="{{ "../static/admin/img/"|add:dish.img }}" class="card-img-top dish-img" alt="{{ dish.name }}">
                 {% else %}
                 <div class="dish-img bg-light d-flex align-items-center justify-content-center">
                     <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
@@ -79,7 +80,8 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ dish.name }}</h5>
                     <p class="card-text">{{ dish.description }}</p>
-                    <p class="h5 text-primary">${{ dish.price }}</p>
+                    
+                    <p class="h5 text-primary">{{ dish.price|format_cents_as_money }}</p>
                     
                     <!-- Dish Rating -->
                     <div class="rating-stars">

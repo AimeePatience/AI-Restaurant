@@ -1,5 +1,5 @@
 {% extends "./base.html" %}
-
+{% load filters %}
 {% block title %}Deposit Money - AI Restaurant{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <p><strong>Current Balance:</strong> ${{ user.balance|floatformat:2 }}</p>
+                    <p><strong>Current Balance:</strong> {{user.balance|format_cents_as_money }}</p>
                 </div>
                 <form method="POST" action="{% url 'deposit' %}">
                     {% csrf_token %}
@@ -19,7 +19,7 @@
                         <label for="amount" class="form-label">Deposit Amount</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
-                            {{ form.amount }}
+                            {{form.amount|format_cents_as_money}}
                         </div>
                         {% if form.amount.errors %}
                         <div class="text-danger">{{ form.amount.errors }}</div>

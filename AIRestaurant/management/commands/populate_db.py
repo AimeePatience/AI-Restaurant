@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 from AIRestaurant.data.users import User
 from AIRestaurant.data.manager import Manager
-from AIRestaurant.data.chef import Chef
+from AIRestaurant.data.chef import Chef, Dish
 from AIRestaurant.data.deliverer import Deliverer
 from AIRestaurant.data.customer import Customer
-
+from subprocess import run as shell_run
 class Command(BaseCommand):
     help = 'Populate database with initial data'
 
@@ -23,9 +23,13 @@ class Command(BaseCommand):
             ('Ploni Almoni', 'plonialmoni'),
             ('Karen Smith', 'karensmith'),
         ]
+        DISHES = [
+            ('Guacamole', 'guacamole.jpg', 399, 'Mordecai Shafier'),
+            ('Chicken Salad with Honey Mustard', 'chicken_salad_with_honey_mustard.png', 899, 'Abraham Spoerri'),
+        ]
 
         # Clear existing data
-        for model in [Manager, Chef, Deliverer, Customer, User]:
+        for model in [Manager, Chef, Deliverer, Customer, User, Dish]:
             model.objects.all().delete()
 
         raphael_login = User.objects.create_user(
@@ -79,4 +83,18 @@ class Command(BaseCommand):
             customer.save()
             self.stdout.write(self.style.SUCCESS(f'✓ Created Customer: {name}'))
 
+        for dish_name, image_url, price_cents, chef_name in DISHES:
+            chef_user = User.objects.get(username=chef_name.lower().replace(' ', ''))
+            chef = Chef.objects.get(login=chef_user)
+            dish = Dish.objects.create(
+                name=dish_name,
+                img=image_url,
+                price=price_cents,
+                chef=chef
+            )
+            dish.save()
+            self.stdout.write(self.style.SUCCESS(f'✓ Created Dish: {dish_name} by {chef_name}'))
         self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
+
+        shell_run(['python', 'manage.py', 'migrate'])
+        shell_run(['python', 'manage.py', 'makemigrations', 'air'])

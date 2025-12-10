@@ -115,7 +115,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+# Include project-level static directory (e.g., /static/css)
+STATICFILES_DIRS = [ BASE_DIR / "static" ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -126,8 +129,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
 MEDIA_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/media'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/home/SapphireBrick613/AIRestaurant/AIRestaurant/static'
-STATIC_URL = '/static/'
+# Prefer PythonAnywhere path if present, otherwise fall back to local staticfiles folder
+STATIC_ROOT = Path('/home/SapphireBrick613/AIRestaurant/AIRestaurant/static') if Path('/home/SapphireBrick613/AIRestaurant/AIRestaurant/static').exists() else BASE_DIR / 'staticfiles'
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'SapphireBrick613.pythonanywhere.com']
 
