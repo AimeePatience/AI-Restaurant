@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from . import views
+from . import views_submit
 
 urlpatterns = [
     # Public pages
@@ -11,6 +12,11 @@ urlpatterns = [
     path('ai_chat/', views.ai_chat, name='ai_chat'),
     path('rate_ai_response/<int:rating_id>/', views.rate_ai_response, name='rate_ai_response'),
     path('discussions/', views.discussions, name='discussions'),
+    path('create_thread/', views.create_thread, name='create_thread'),
+    path('thread/<int:thread_id>/', views.thread_view, name='thread'),
+    path('submit_message/', views_submit.submit_message, name='submit_message'),
+    path('submit_complaint/', views_submit.submit_complaint, name='submit_complaint'),
+    path('submit_compliment/', views_submit.submit_compliment, name='submit_compliment'),
     # Customer pages
     path('cart/', views.cart, name='cart'),
     path('add_to_cart/<int:menu_id>/', views.add_to_cart, name='add_to_cart'),
@@ -44,6 +50,8 @@ urlpatterns = [
     path('chef/', views.chef, name='chef'),
     path('deliverer/', views.deliverer, name='deliverer'),
     path('manager/', views.manager, name='manager'),
+    # Generic profile view by user id (used by thread/profile links)
+    path('profile/<int:user_id>/', views.profile_view, name='profile'),
     path('cart/', views.cart, name='cart'),
     path('update_cart/', views.update_cart, name='update_cart'),
     
