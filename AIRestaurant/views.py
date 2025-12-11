@@ -20,6 +20,7 @@ from .models import (
     Order,
     OrderedDish,
     Plea,
+    FAQEntry,
 )
 from django.db.models import Avg, Count
 from django.utils import timezone
@@ -31,6 +32,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .data.message import Thread
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.urls import reverse
+from .faq import search_entries, create_entry, tokenize
 
 def home(request):
     return render(request, 'index.html', {'user': request.user})
@@ -930,3 +932,51 @@ def reject_user(request, user_id):
         messages.error(request, f'Error rejecting user: {str(e)}')
 
     return redirect('profile', user_id=viewer.id)
+
+
+def faq(request):
+    """FAQ page with search and inform functionality."""
+    search_query = request.GET.get('q', '').strip()
+    
+    # Always show all entries, or filter by search
+    if search_query:
+        all_entries = search_entries(search_query)
+    else:
+        all_entries = FAQEntry.objects.all()
+    
+    duplicate_warning = None
+    
+    # Handle new FAQ submission (logged-in users only)
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.error(request, 'You must be logged in to add FAQ entries.')
+            return redirect('login')
+        
+        question = request.POST.get('question', '').strip()
+        answer = request.POST.get('answer', '').strip()
+        force_submit = request.POST.get('force_submit') == 'true'
+        
+        if question and answer:
+            # Check for duplicates (90% word overlap)
+            existing = search_entries(question)
+            
+            if existing and not force_submit:
+                # Warn about duplicates
+                duplicate_warning = {
+                    'question': question,
+                    'answer': answer,
+                    'similar': existing
+                }
+            else:
+                # Create new entry
+                create_entry(question, answer, request.user)
+                messages.success(request, 'FAQ entry added successfully!')
+                return redirect('faq')
+        else:
+            messages.error(request, 'Both question and answer are required.')
+    
+    return render(request, 'faq.html', {
+        'search_query': search_query,
+        'all_entries': all_entries,
+        'duplicate_warning': duplicate_warning,
+    })

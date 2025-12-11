@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Search Section -->
+        <div class="col-md-6">
+            <h2>FAQ</h2>
+            <form method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           name="q" 
+                           placeholder="Search questions" 
+                           value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+                <small class="text-muted">A match requires 90% of the search words to appear in a stored question.</small>
+            </form>
+
+            <!-- FAQ Entries List -->
+            {% if search_query %}
+                <h4>Search Results</h4>
+            {% else %}
+                <h4>All Questions</h4>
+            {% endif %}
+            
+            {% if all_entries %}
+                {% for entry in all_entries %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Q: {{ entry.question }}</h5>
+                            <p class="card-text">{{ entry.answer }}</p>
+                            <small class="text-muted">
+                                Added {{ entry.created_at|date:"M d, Y H:i" }}
+                                {% if entry.author %}
+                                    by {{ entry.author.username }}
+                                {% else %}
+                                    by anonymous
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-secondary">
+                    {% if search_query %}
+                        No entries match your search. Try different keywords or browse all questions below.
+                    {% else %}
+                        No FAQ entries yet. Be the first to add one!
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Inform Section -->
+        <div class="col-md-6">
+            <h2>Inform the FAQ</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if not user.is_authenticated %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> You must be <a href="{% url 'login' %}">logged in</a> to add FAQ entries.
+                </div>
+            {% elif duplicate_warning %}
+                <div class="alert alert-warning">
+                    <h5>⚠️ Similar questions found:</h5>
+                    <ul>
+                        {% for entry in duplicate_warning.similar %}
+                            <li><strong>{{ entry.question }}</strong></li>
+                        {% endfor %}
+                    </ul>
+                    <p>Submit anyway?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="question" value="{{ duplicate_warning.question }}">
+                        <input type="hidden" name="answer" value="{{ duplicate_warning.answer }}">
+                        <input type="hidden" name="force_submit" value="true">
+                        <button type="submit" class="btn btn-warning">Yes, Submit Anyway</button>
+                        <a href="{% url 'faq' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Question</label>
+                        <textarea class="form-control" 
+                                  id="question" 
+                                  name="question" 
+                                  rows="2" 
+                                  required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="answer" class="form-label">Answer</label>
+                        <textarea class="form-control" 
+                                  id="answer" 
+                                  name="answer" 
+                                  rows="4" 
+                                  required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
