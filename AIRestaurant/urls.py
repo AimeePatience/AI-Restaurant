@@ -6,6 +6,7 @@ urlpatterns = [
     # Public pages
     path('', views.home, name='index'),
     path('menu/', views.menu, name='menu'),
+    path('merch/', views.merch, name='merch'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('register/', views.register, name='register'),

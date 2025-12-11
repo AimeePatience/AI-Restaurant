@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand
 from AIRestaurant.data.users import User
 from AIRestaurant.data.manager import Manager
-from AIRestaurant.data.chef import Chef, Dish
+from AIRestaurant.data.chef import Chef, Product
 from AIRestaurant.data.deliverer import Deliverer
 from AIRestaurant.data.customer import Customer
 from subprocess import run as shell_run
 class Command(BaseCommand):
+
     help = 'Populate database with initial data'
 
     def handle(self, *args, **options):
@@ -31,8 +32,14 @@ class Command(BaseCommand):
             ('Chicken Salad with Honey Mustard', 'chicken_salad_with_honey_mustard.png', 899, 'Abraham Spoerri'),
         ]
 
+        MERCH = [
+            ('AI Restaurant T-Shirt', '?', 1999),
+            ('AI Restaurant Mug', '?', 1299),
+            ("Chef's Apron", '?', 2499),
+        ]
+
         # Clear existing data
-        for model in [Manager, Chef, Deliverer, Customer, User, Dish]:
+        for model in [Manager, Chef, Deliverer, Customer, User, Product]:
             model.objects.all().delete()
 
         raphael_login = User.objects.create_user(
@@ -89,12 +96,28 @@ class Command(BaseCommand):
         for dish_name, image_url, price_cents, chef_name in DISHES:
             chef_user = User.objects.get(username=chef_name.lower().replace(' ', ''))
             chef = Chef.objects.get(login=chef_user)
-            dish = Dish.objects.create(
+            dish = Product.objects.create(
                 name=dish_name,
                 img=image_url,
                 price=price_cents,
-                chef=chef
+                type='food',
+                creator=chef,
             )
             dish.save()
-            self.stdout.write(self.style.SUCCESS(f'✓ Created Dish: {dish_name} by {chef_name}'))
+            self.stdout.write(self.style.SUCCESS(f'✓ Created Product: {dish_name} by {chef_name}'))
+
+        # Create merch products tagged as type='merch' with anonymous creators
+        for merch_name, image_url, price_cents in MERCH:
+            product = Product.objects.create(
+                name=merch_name,
+                img=image_url,
+                price=price_cents,
+                type='merch',
+                creator=None,
+            )
+            product.save()
+            self.stdout.write(self.style.SUCCESS(f'✓ Created Merch Product: {merch_name}'))
         self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
+
+        shell_run(['python', 'manage.py', 'migrate'])
+        shell_run(['python', 'manage.py', 'makemigrations', 'air'])

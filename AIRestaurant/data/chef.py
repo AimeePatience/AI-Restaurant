@@ -3,19 +3,29 @@
 from django.db.models import *
 from .users import Employee
 
+
 class Chef(Employee):
     pass
 
-class Dish(Model):
-    name    = CharField(max_length=50)
-    img     = CharField(max_length=256, default="?")
-    price   = PositiveIntegerField()
-    chef    = ForeignKey(Chef, CASCADE)
 
-class DishRating(Model):
-    dish    = ForeignKey(Dish, CASCADE)
-    who     = ForeignKey(Employee, CASCADE)
-    rating  = IntegerField()
-    
+class Product(Model):
+    name = CharField(max_length=50)
+    img = CharField(max_length=256, default="?")
+    price = PositiveIntegerField()
+    # Classify products so we can distinguish menu items from merch
+    type = CharField(
+        max_length=10,
+        choices=[("food", "Food"), ("merch", "Merch")],
+        default="food",
+    )
+    # Creator is typically a Chef for food items; merch can be anonymous
+    creator = ForeignKey(Chef, CASCADE, null=True, blank=True)
+
+
+class ProductRating(Model):
+    product = ForeignKey(Product, CASCADE)
+    who = ForeignKey(Employee, CASCADE)
+    rating = IntegerField()
+
     class Meta:
-        unique_together = ('dish', 'who')
+        unique_together = ("product", "who")

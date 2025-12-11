@@ -34,13 +34,15 @@ class Employee(Model):
         or None if no ratings exist.
         """
         from django.db.models import Avg
-        from .dish import Dish
-        from .dish import DishRating
+        from .chef import Product, ProductRating
 
-        # Get all dishes created by this employee and their average rating
-        avg_rating = DishRating.objects.filter(
-            dish__chef__login=self.login
-        ).aggregate(avg=Avg('rating'))['avg']
+        # Get average rating over FOOD products created by this employee.
+        # Merch products (type='merch') are excluded so their ratings
+        # do not affect staff reputation.
+        avg_rating = ProductRating.objects.filter(
+            product__type="food",
+            product__creator__login=self.login,
+        ).aggregate(avg=Avg("rating"))["avg"]
 
         return avg_rating
 

@@ -4,7 +4,23 @@ import json
 from subprocess import run as shell
 from urllib.parse import unquote
 from django.shortcuts import get_object_or_404
-from .models import User as DataUser, Customer, DishRating, Dish, Deliverer, Chef, Manager, Compliment, Complaint, Message, Employee, Order, OrderedDish, Plea
+from types import SimpleNamespace
+from .models import (
+    User as DataUser,
+    Customer,
+    ProductRating,
+    Product,
+    Deliverer,
+    Chef,
+    Manager,
+    Compliment,
+    Complaint,
+    Message,
+    Employee,
+    Order,
+    OrderedDish,
+    Plea,
+)
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -24,9 +40,9 @@ def menu(request):
     Provides per-dish average rating and rating count, and exposes a
     simple `can_rate` flag used by the template for logged-in customers.
     """
-    dishes_qs = Dish.objects.all().annotate(
-        avg_rating=Avg('dishrating__rating'),
-        rating_count=Count('dishrating')
+    dishes_qs = Product.objects.filter(type='food').annotate(
+        avg_rating=Avg('productrating__rating'),
+        rating_count=Count('productrating')
     )
 
     is_customer = (
@@ -51,7 +67,34 @@ def menu(request):
             d.initial_qty = 0
         dishes.append(d)
 
-    return render(request, 'menu.html', {'dishes': dishes})
+    return render(request, 'menu.html', {'dishes': dishes, 'enable_cart': True})
+
+
+def merch(request):
+    """Show restaurant merchandise using the shared product list layout.
+
+    Merch items are stored as `Product` rows tagged with type='merch'.
+    """
+    products_qs = Product.objects.filter(type='merch').annotate(
+        avg_rating=Avg('productrating__rating'),
+        rating_count=Count('productrating'),
+    )
+
+    # Reuse the same session-based cart; quantities reflect in-progress merch
+    session_cart = request.session.get('cart', {}) or {}
+
+    merch_items = []
+    for p in products_qs:
+        p.average_rating = p.avg_rating or 0
+        p.rating_count = p.rating_count
+        p.can_rate = False
+        try:
+            p.initial_qty = int(session_cart.get(str(p.id), 0))
+        except (TypeError, ValueError):
+            p.initial_qty = 0
+        merch_items.append(p)
+
+    return render(request, 'merch.html', {'dishes': merch_items, 'enable_cart': True})
 def add_to_cart(request):
     return render(request, 'cart.html')
 
@@ -76,22 +119,22 @@ def rate_dish(request, dish_id):
         return JsonResponse({'error': 'Rating must be between 1 and 5.'}, status=400)
 
     try:
-        dish = get_object_or_404(Dish, pk=dish_id)
+        dish = get_object_or_404(Product, pk=dish_id)
 
         # Ensure we have an Employee record linked to this user so
-        # DishRating(unique_together=(dish, who)) can store per-user ratings.
+        # ProductRating(unique_together=(product, who)) can store per-user ratings.
         rater, _ = Employee.objects.get_or_create(login=request.user)
 
         # Use a safer update pattern to avoid issues if duplicate
-        # DishRating rows ever exist.
-        dr = DishRating.objects.filter(dish=dish, who=rater).first()
+        # ProductRating rows ever exist.
+        dr = ProductRating.objects.filter(product=dish, who=rater).first()
         if dr is None:
-            dr = DishRating(dish=dish, who=rater)
+            dr = ProductRating(product=dish, who=rater)
         dr.rating = rating_val
         dr.save()
 
         # Recompute aggregate rating info to return to the client if needed
-        agg = DishRating.objects.filter(dish=dish).aggregate(avg=Avg('rating'), count=Count('id'))
+        agg = ProductRating.objects.filter(product=dish).aggregate(avg=Avg('rating'), count=Count('id'))
         return JsonResponse({
             'status': 'ok',
             'dish_id': dish.id,
@@ -173,12 +216,14 @@ def place_order(request):
         messages.error(request, 'Your cart is empty.')
         return redirect('menu')
 
-    # Compute total in cents based on dish prices and prepare OrderedDish list
+    # Compute total in cents based on product prices and prepare OrderedDish list
     dish_ids = [int(did) for did in cart.keys()]
-    dishes = {d.id: d for d in Dish.objects.filter(id__in=dish_ids)}
+    dishes = {d.id: d for d in Product.objects.filter(id__in=dish_ids)}
 
     total_cents = 0
     ordered_rows = []
+    order_type = None
+    cart_mixed = False
     for dish_id_str, qty in cart.items():
         try:
             qty = int(qty)
@@ -189,11 +234,20 @@ def place_order(request):
         dish = dishes.get(int(dish_id_str))
         if not dish:
             continue
+        p_type = getattr(dish, 'type', 'food')
+        if order_type is None:
+            order_type = p_type
+        elif order_type != p_type:
+            cart_mixed = True
         total_cents += dish.price * qty
-        ordered_rows.append(OrderedDish(dish=dish, quantity=qty))
+        ordered_rows.append(OrderedDish(product=dish, quantity=qty))
 
     if total_cents <= 0 or not ordered_rows:
         messages.error(request, 'Unable to calculate order total.')
+        return redirect('cart')
+
+    if cart_mixed:
+        messages.error(request, 'You cannot place a mixed food and merch order. Please separate them into different orders.')
         return redirect('cart')
 
     if customer.balance < total_cents:
@@ -213,7 +267,7 @@ def place_order(request):
 
     # Use the domain method to create an Order and charge balance
     try:
-        order = customer.order(ordered_rows)
+        order = customer.order(ordered_rows, order_type=order_type or "food")
         order.customer = customer
         order.save()
     except ValueError as e:
@@ -386,7 +440,7 @@ def order_history(request):
         messages.error(request, 'Customer profile not found.')
         return redirect('index')
 
-    orders = Order.objects.filter(customer=customer).prefetch_related('items__dish').order_by('-date')
+    orders = Order.objects.filter(customer=customer).prefetch_related('items__product').order_by('-date')
 
     # For compatibility with the existing template, annotate simple totals
     for o in orders:
@@ -492,13 +546,21 @@ def cart(request):
 
     session_cart = request.session.get('cart', {}) or {}
     if not session_cart:
-        return render(request, 'cart.html', {'cart': {}, 'total': 0, 'customer': customer})
+        return render(request, 'cart.html', {
+            'cart': {},
+            'total': 0,
+            'customer': customer,
+            'cart_type': None,
+            'cart_mixed': False,
+        })
 
     dish_ids = [int(did) for did in session_cart.keys()]
-    dishes = {d.id: d for d in Dish.objects.filter(id__in=dish_ids)}
+    dishes = {d.id: d for d in Product.objects.filter(id__in=dish_ids)}
 
     cart_items = {}
     total_cents = 0
+    cart_type = None
+    cart_mixed = False
     for dish_id_str, qty in session_cart.items():
         try:
             qty = int(qty)
@@ -509,6 +571,12 @@ def cart(request):
         dish = dishes.get(int(dish_id_str))
         if not dish:
             continue
+        # Track whether this cart is food-only or merch-only
+        p_type = getattr(dish, 'type', 'food')
+        if cart_type is None:
+            cart_type = p_type
+        elif cart_type != p_type:
+            cart_mixed = True
         price_cents = dish.price
         subtotal_cents = price_cents * qty
         total_cents += subtotal_cents
@@ -523,6 +591,8 @@ def cart(request):
         'cart': cart_items,
         'total': total_cents,
         'customer': customer,
+        'cart_type': cart_type,
+        'cart_mixed': cart_mixed,
     })
 
 def chef(request):
@@ -641,10 +711,13 @@ def profile_view(request, user_id):
     context['compliments'] = list(Compliment.objects.filter(to=target).select_related('sender', 'message').order_by('-id')[:50])
     context['complaints'] = list(Complaint.objects.filter(to=target).select_related('sender', 'message').order_by('-id')[:50])
 
-    # compute average dish rating for chefs
+    # compute average product rating for chefs (food items only)
     if target.type == 'CH':
         try:
-            avg = DishRating.objects.filter(dish__chef__login=target).aggregate(avg=Avg('rating'))['avg']
+            avg = ProductRating.objects.filter(
+                product__type='food',
+                product__creator__login=target,
+            ).aggregate(avg=Avg('rating'))['avg']
             if avg is not None:
                 context['avg_dish_rating'] = round(avg, 2)
         except Exception:

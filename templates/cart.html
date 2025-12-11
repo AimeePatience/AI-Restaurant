@@ -61,7 +61,11 @@
     <button type="submit" class="btn btn-primary btn-lg">
         Place Order
     </button>
+    {% if cart_type == 'merch' %}
+    <a href="{% url 'merch' %}" class="btn btn-secondary btn-lg">Continue Shopping</a>
+    {% else %}
     <a href="{% url 'menu' %}" class="btn btn-secondary btn-lg">Continue Shopping</a>
+    {% endif %}
 </form>
 {% else %}
 <div class="alert alert-info">

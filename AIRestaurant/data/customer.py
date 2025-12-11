@@ -3,7 +3,7 @@ from django.db.models import *
 from typing import *
 from .users import User, Employee
 from .deliverer import OrderedDish
-from .chef import Dish
+from .chef import Product
 
 class Customer(Model):
     login       = ForeignKey(User, on_delete=CASCADE)
@@ -31,14 +31,17 @@ class Customer(Model):
         self.save()
 
     
-    def order(self, dishes: List[OrderedDish]):
+    def order(self, dishes: List[OrderedDish], order_type: str = "food"):
         """Create an `Order` with `OrderedDish` rows and charge balance.
 
-        Expects a list of *unsaved* `OrderedDish` instances with `dish` and
-        `quantity` set. This method will:
+        `order_type` must be either "food" or "merch" and marks the
+        classification of this order.
+
+        Expects a list of *unsaved* `OrderedDish` instances with `product`
+        and `quantity` set. This method will:
           - compute the total cost in cents,
           - ensure the customer has sufficient balance,
-          - create an `Order` row,
+          - create an `Order` row with the appropriate type,
           - attach and save each `OrderedDish` to that order,
           - deduct the total from this customer's balance.
 
@@ -47,12 +50,15 @@ class Customer(Model):
         """
         from .deliverer import Order  # local import to avoid cycles
 
+        if order_type not in ("food", "merch"):
+            raise ValueError("order_type must be 'food' or 'merch'.")
+
         if not dishes:
-            raise ValueError("No dishes provided for order.")
+            raise ValueError("No items provided for order.")
 
         total_cost = 0
         for od in dishes:
-            if od.dish is None or od.quantity is None:
+            if getattr(od, "product", None) is None or od.quantity is None:
                 continue
             if od.quantity <= 0:
                 continue
@@ -64,10 +70,10 @@ class Customer(Model):
         if self.balance < total_cost:
             raise ValueError("Insufficient balance for this order.")
 
-        # Create the order and attach dishes
-        order = Order.objects.create()
+        # Create the order and attach line items
+        order = Order.objects.create(customer=self, order_type=order_type)
         for od in dishes:
-            if od.dish is None or od.quantity is None or od.quantity <= 0:
+            if getattr(od, "product", None) is None or od.quantity is None or od.quantity <= 0:
                 continue
             od.from_order_num = order
             od.save()
