@@ -27,7 +27,9 @@
                 <td>#{{ order.id }}</td>
                 <td>
                     {% if order.customer and order.customer.login %}
+                        <a href="{% url 'profile' order.customer.login.id %}">
                         {{ order.customer.login.username }}
+                        </a>
                     {% else %}
                         <span class="text-muted">Unknown</span>
                     {% endif %}
