@@ -1,4 +1,5 @@
 {% extends "./base.html" %}
+{% load tz %}
 
 {% block title %}My Deliveries - AI Restaurant{% endblock %}
 
@@ -37,7 +38,7 @@
                         {{ order.status }}
                     </span>
                 </td>
-                <td>{{ order.timestamp|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.timestamp|localtime }}</td>
                 <td>
                     {% if order.status == 'Out for Delivery' %}
                     <form method="POST" action="{% url 'update_order_status' order.id %}" class="d-inline">

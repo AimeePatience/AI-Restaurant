@@ -41,15 +41,9 @@
                     {% endif %}
                 </td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.description|truncatewords:10|default:"N/A" }}</td>
-                <td>${{ item.price|floatformat:2 }}</td>
-                <td>{{ item.category|default:"N/A" }}</td>
-                <td>{{ item.chef.username|default:"Unassigned" }}</td>
-                <td>
-                    <span class="badge bg-{% if item.is_available %}success{% else %}danger{% endif %}">
-                        {% if item.is_available %}Available{% else %}Unavailable{% endif %}
-                    </span>
-                </td>
+                <td>${{item.price|floatformat:2 }}</td>
+                <td>{{ item.creator.username|default:"Unassigned" }}</td>
+                
                 <td>
                     <button type="button" class="btn btn-sm btn-primary" 
                             data-bs-toggle="modal" data-bs-target="#editMenuItemModal{{ item.id }}">
