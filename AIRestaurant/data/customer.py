@@ -31,7 +31,7 @@ class Customer(Model):
         self.save()
 
     
-    def order(self, dishes: List[OrderedDish], order_type: str = "food"):
+    def order(self, dishes, order_type: str = "food"):
         """Create an `Order` with `OrderedDish` rows and charge balance.
 
         `order_type` must be either "food" or "merch" and marks the
