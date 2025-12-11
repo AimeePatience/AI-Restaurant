@@ -33,9 +33,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'faq' %}">FAQ</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'menu' %}">Menu</a>
                     </li>
                     {% if user.is_authenticated %}
@@ -47,10 +44,10 @@
                                 <a class="nav-link" href="{% url 'merch' %}">Merch</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'order_history' %}">My Orders</a>
+                                <a class="nav-link" href="{% url 'deposit' %}">Deposit</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'deposit' %}">Deposit</a>
+                                <a class="nav-link" href="{% url 'order_history' %}">My Orders</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'discussions' %}">Discussions</a>
@@ -66,13 +63,14 @@
                         {% endif %}
                         {% if user.type == 'MN' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'manager' %}">Manager Dashboard</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" href="{% url 'manage_menu' %}">Manage Menu</a>
                             </li>
                         {% endif %}
                     {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'faq' %}">FAQ</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
