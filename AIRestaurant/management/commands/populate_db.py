@@ -29,6 +29,7 @@ class Command(BaseCommand):
             ('Karen Smith', 'karensmith'),
         ]
         DISHES = [
+            ('Chocolate Chip Cookies', 'cookies.jpg', 299, 'Mordecai Shafier'),
             ('Guacamole', 'guacamole.jpg', 399, 'Mordecai Shafier'),
             ('Chicken Salad with Honey Mustard', 'chicken_salad_with_honey_mustard.png', 899, 'Abraham Spoerri'),
         ]
